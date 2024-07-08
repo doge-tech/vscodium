@@ -7,6 +7,8 @@ VSCODIUM_REPO="VSCodium/vscodium"
 
 LOCAL_VERSIONS=$( git submodule foreach 'echo $name `git describe --contains`' )
 
+git pull --recurse-submodules
+
 # Check for newer VSCodium release
 echo "[i] Checking for newer VSCodium release..."
 GITHUB_RESPONSE=$( curl -s "https://api.${GH_HOST}/repos/${VSCODIUM_REPO}/releases/latest" )
@@ -19,6 +21,11 @@ if [[ "${VSCODIUM_VERSION}" == "${LOCAL_VSCODIUM_VERSION}" ]]; then
 	echo "[i] VSCodium is up to date."
 else
 	echo "[i] Newer VSCodium release available ($VSCODIUM_VERSION)!"
+	cd vscodium
+	git checkout ${VSCODIUM_VERSION}
+	cd ..
+	LOCAL_VERSIONS=$( git submodule foreach 'echo $name `git describe --contains`' )
+	LOCAL_VSCODIUM_VERSION=$( echo "${LOCAL_VERSIONS}" | awk '/^vscodium/ {print $NF}' )
 fi
 
 # Check VSCode is up to date
@@ -31,5 +38,9 @@ echo "[i] Local VSCode version: ${LOCAL_VSCODE_VERSION}"
 if [[ "${LOCAL_VSCODE_VERSION}" == "${VSCODIUM_SHORT_VERSION}" ]]; then
 	echo "[i] VSCode is up to date."
 else
-	echo "[i] VSCode needs to be updated!"
+	echo "[i] VSCode needs to be updated to ${VSCODIUM_SHORT_VERSION}"
+	cd vscode
+	git checkout ${VSCODIUM_SHORT_VERSION}
+	LOCAL_VERSIONS=$( git submodule foreach 'echo $name `git describe --contains`' )
+	LOCAL_VSCODE_VERSION=$( echo "${LOCAL_VERSIONS}" | awk '/^vscode/ {print $NF}' )
 fi
