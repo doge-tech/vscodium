@@ -1,3 +1,6 @@
 [submodule "vscodium"]
 	path = vscodium
 	url = https://github.com/VSCodium/vscodium
+[submodule "vscode"]
+	path = vscode
+	url = https://github.com/microsoft/vscode
